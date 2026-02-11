@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User | Admin Management</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0b0f1a;
+            --bg-card: #161c2d;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #2d3748;
+            --sidebar-width: 280px;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles (Consistent with Dashboard) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #0f172a;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2.5rem 3.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-header i {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 1rem;
+            border-radius: 50%;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .form-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .input-control {
+            width: 100%;
+            background: #0b0f1a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-main);
+            font-size: 0.9375rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .input-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: #2d3748;
+            color: white;
+        }
+
+        .btn-confirm {
+            background: var(--primary);
+            color: white;
+        }
+
+        #msg {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo"><i data-lucide="shield-check" color="white" size="24"></i></div>
+            <span class="brand-name">AdminHub</span>
+        </div>
+        <nav class="nav-menu">
+            <li class="nav-item"><a href="admin_dashboard.html" class="nav-link"><i
+                        data-lucide="layout-dashboard"></i><span>Analytics</span></a></li>
+            <li class="nav-item"><a href="admin_add_user.html" class="nav-link active"><i
+                        data-lucide="user-plus"></i><span>Add User</span></a></li>
+            <li class="nav-item"><a href="admin_files_stats.html" class="nav-link"><i
+                        data-lucide="files"></i><span>Files</span></a></li>
+            <li class="nav-item"><a href="admin_logs.html" class="nav-link"><i data-lucide="database"></i><span>System
+                        Logs</span></a>
+            </li>
+        </nav>
+        <a class="nav-link" id="logoutBtn" style="color: #fca5a5; margin-top: auto; cursor: pointer;"><i
+                data-lucide="log-out"></i><span>Sign Out</span></a>
+    </aside>
+
+    <main class="main-container">
+        <div class="form-card">
+            <div class="form-header">
+                <i data-lucide="user-plus" size="32"></i>
+                <h2>Create New Account</h2>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">The roll number will be
+                    used as the default password.</p>
+            </div>
+
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="name" class="input-control" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>Roll Number</label>
+                    <input type="text" id="roll" class="input-control" placeholder="e.g. 2101001" required>
+                </div>
+                <div class="form-group">
+                    <label>Section</label>
+                    <input type="text" id="section" class="input-control" placeholder="e.g. A, B, CS-1" required>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <div class="spinner" id="btnSpinner"></div>
+                    <span id="btnText">Add User Account</span>
+                </button>
+            </form>
+
+            <div id="msg"></div>
+        </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-icon"><i data-lucide="help-circle" size="32"></i></div>
+            <h2>Confirm Action</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;" id="modalDesc">Are you sure you want to create this
+                account?</p>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn btn-confirm" id="confirmBtn">Confirm & Create</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'index.html';
+
+        const form = document.getElementById('addUserForm');
+        const modal = document.getElementById('confirmModal');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let formData = null;
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            formData = {
+                name: document.getElementById('name').value,
+                roll: document.getElementById('roll').value,
+                section: document.getElementById('section').value
+            };
+
+            document.getElementById('modalDesc').innerHTML = `Create account for <b>${formData.name}</b> (Roll: ${formData.roll}) in Section ${formData.section}?`;
+            modal.style.display = 'flex';
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => modal.style.display = 'none');
+
+        document.getElementById('confirmBtn').addEventListener('click', async () => {
+            modal.style.display = 'none';
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/add-new-account`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMsg(data.msg || "Account created successfully!", "success");
+                    form.reset();
+                } else {
+                    showMsg(data.error || "Failed to create account", "error");
+                }
+            } catch (err) {
+                showMsg("Network error: Could not reach server", "error");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(loading) {
+            submitBtn.disabled = loading;
+            document.getElementById('btnSpinner').style.display = loading ? 'block' : 'none';
+            document.getElementById('btnText').textContent = loading ? 'Creating Account...' : 'Add User Account';
+        }
+
+        function showMsg(text, type) {
+            const msg = document.getElementById('msg');
+            msg.textContent = text;
+            msg.style.display = 'block';
+            msg.style.background = type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            msg.style.color = type === 'success' ? 'var(--success)' : 'var(--error)';
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+
+</html>

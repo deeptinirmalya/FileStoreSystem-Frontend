@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View File | FileStore Pro</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #64748b;
+            --primary-dark: #475569;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --error: #fb7185;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .file-info h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-info p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.875rem;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            background: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .viewer-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            flex-grow: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-area {
+            background: #0b1425;
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            flex-grow: 1;
+            border: 1px solid var(--border);
+            color: #d1d5db;
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+        }
+
+        .copy-toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: none;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-card);
+            z-index: 10;
+            gap: 1rem;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(100, 116, 139, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="file-info">
+                <h1 id="fileName">Loading File...</h1>
+                <p id="fileMeta">Connecting to secure server...</p>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" id="copyBtn">
+                    <i data-lucide="copy" size="18"></i>
+                    <span>Copy Content</span>
+                </button>
+                <button class="btn" onclick="window.close()">
+                    <i data-lucide="x" size="18"></i>
+                    <span>Close</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="viewer-card">
+            <div id="loader" class="loader-container">
+                <div class="loader"></div>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Decrypting file content...</p>
+            </div>
+            <div id="content" class="content-area"></div>
+        </div>
+    </div>
+
+    <div id="copyToast" class="copy-toast">
+        <i data-lucide="check" size="18"></i>
+        <span>Copied to clipboard!</span>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileId = urlParams.get('id');
+        const token = localStorage.getItem('access_token');
+
+        if (!fileId) {
+            alert("No file ID provided.");
+            window.location.href = 'user_dashboard.html';
+        }
+
+        async function fetchFileContent() {
+            try {
+                // Determine if we need token (for private files) or not
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+                const response = await fetch(`${CONFIG.BASE_URL}/user/v1/view-file/${fileId}`, { headers });
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('fileName').textContent = data.filename;
+                    document.getElementById('fileMeta').textContent = `Document Type: ${data.extension.toUpperCase()}`;
+                    document.getElementById('content').textContent = data.content;
+                    document.getElementById('loader').style.display = 'none';
+                } else {
+                    document.getElementById('fileName').textContent = "Access Denied";
+                    document.getElementById('fileMeta').textContent = "Error code: " + response.status;
+                    document.getElementById('content').textContent = data.error || "You do not have permission to view this file or it does not exist.";
+                    document.getElementById('loader').style.display = 'none';
+                }
+            } catch (err) {
+                document.getElementById('fileName').textContent = "Network Error";
+                document.getElementById('content').textContent = "Could not Establish connection to the server. Please check your internet connection.";
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const text = document.getElementById('content').innerText;
+            if (!text) return;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        });
+
+        function showToast() {
+            const toast = document.getElementById('copyToast');
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '0.5rem';
+
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        fetchFileContent();
+    </script>
+</body>
+
+</html>

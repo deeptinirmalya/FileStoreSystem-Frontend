@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | File Store</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- External Configuration -->
+    <script src="config.js"></script>
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --error: #b91c1c;
+            --success: #15803d;
+            --border: #e2e8f0;
+            --input-focus: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .signup-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            color: var(--text-main);
+            font-size: 0.9375rem;
+            outline: none;
+            transition: all 0.2s ease;
+            appearance: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .btn-signup {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-signup:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-signup:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-msg {
+            margin-top: 1.25rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+
+        .status-error {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            color: var(--error);
+        }
+
+        .status-success {
+            background: #f0fdf4;
+            border: 1px solid #dcfce7;
+            color: var(--success);
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .footer-link {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .footer-link a {
+            color: var(--input-focus);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="signup-container">
+        <main class="signup-card">
+            <div class="header">
+                <div class="brand-icon">
+                    <i data-lucide="user-plus" size="24"></i>
+                </div>
+                <h1>Create Account</h1>
+                <p class="subtitle">Join our secure file storage platform</p>
+            </div>
+
+            <form id="signupForm">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="name" class="label">Full Name</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="user" class="input-icon" size="18"></i>
+                            <input type="text" id="name" name="name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roll" class="label">Roll Number</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="hash" class="input-icon" size="18"></i>
+                            <input type="text" id="roll" name="roll" placeholder="2024CS01" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="section" class="label">Section</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="layers" class="input-icon" size="18"></i>
+                            <input type="text" id="section" name="section" placeholder="e.g. A" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="password" class="label">Password</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="lock" class="input-icon" size="18"></i>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i data-lucide="eye" size="18" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-signup" id="signupBtn">
+                    <span id="btnText">Register Account</span>
+                    <div class="spinner" id="btnSpinner"></div>
+                </button>
+            </form>
+
+            <div id="statusMsg" class="status-msg"></div>
+
+            <p class="footer-link">
+                Already have an account? <a href="index.html">Sign In</a>
+            </p>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const signupForm = document.getElementById('signupForm');
+        const signupBtn = document.getElementById('signupBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const statusMsg = document.getElementById('statusMsg');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        togglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            toggleIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusMsg.style.display = 'none';
+            statusMsg.className = 'status-msg';
+
+            setLoading(true);
+
+            const payload = {
+                name: document.getElementById('name').value,
+                roll: document.getElementById('roll').value,
+                section: document.getElementById('section').value,
+                password: passwordInput.value
+            };
+
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/user/v1/new-account`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus(data.msg || 'Account created! Please wait for activation.', 'success');
+                    signupForm.reset();
+                } else {
+                    showStatus(data.error || 'Registration failed.', 'error');
+                }
+            } catch (err) {
+                showStatus('Network error occurred.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(isLoading) {
+            signupBtn.disabled = isLoading;
+            btnText.style.display = isLoading ? 'none' : 'block';
+            btnSpinner.style.display = isLoading ? 'block' : 'none';
+        }
+
+        function showStatus(msg, type) {
+            statusMsg.textContent = msg;
+            statusMsg.style.display = 'block';
+            statusMsg.classList.add(type === 'success' ? 'status-success' : 'status-error');
+        }
+    </script>
+</body>
+
+</html>

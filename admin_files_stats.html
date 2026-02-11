@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Statistics | Admin Management</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0b0f1a;
+            --bg-card: #161c2d;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #2d3748;
+            --sidebar-width: 280px;
+            --success: #10b981;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #0f172a;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Main Content */
+        .main-container {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2.5rem 3.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stats-container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.5s ease backwards;
+        }
+
+        .stat-card.clickable {
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .bg-total {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .bg-public {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .bg-private {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(99, 102, 241, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #loadingState {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo"><i data-lucide="shield-check" color="white" size="24"></i></div>
+            <span class="brand-name">AdminHub</span>
+        </div>
+        <nav class="nav-menu">
+            <li class="nav-item"><a href="admin_dashboard.html" class="nav-link"><i
+                        data-lucide="layout-dashboard"></i><span>Analytics</span></a></li>
+            <li class="nav-item"><a href="admin_add_user.html" class="nav-link"><i data-lucide="user-plus"></i><span>Add
+                        User</span></a></li>
+            <li class="nav-item"><a href="admin_files_stats.html" class="nav-link active"><i
+                        data-lucide="files"></i><span>Files</span></a></li>
+            <li class="nav-item"><a href="admin_logs.html" class="nav-link"><i data-lucide="database"></i><span>System
+                        Logs</span></a></li>
+        </nav>
+        <a class="nav-link logout-btn" id="logoutBtn" style="color: #fca5a5; margin-top: auto; cursor: pointer;">
+            <i data-lucide="log-out"></i><span>Sign Out</span>
+        </a>
+    </aside>
+
+    <main class="main-container">
+        <div id="loadingState">
+            <div class="loader"></div>
+            <p style="color: var(--text-muted);">Fetching global file statistics...</p>
+        </div>
+
+        <div id="statsContent" class="stats-container" style="display: none;">
+            <!-- Total Files -->
+            <div class="stat-card clickable" onclick="window.location.href='admin_all_assets.html'"
+                style="animation-delay: 0.1s;">
+                <div class="stat-icon bg-total">
+                    <i data-lucide="layers" size="32"></i>
+                </div>
+                <div class="stat-value" id="totalFiles">0</div>
+                <div class="stat-label">Total Assets</div>
+            </div>
+
+            <!-- Public Files -->
+            <div class="stat-card clickable" onclick="window.location.href='admin_public_assets.html'"
+                style="animation-delay: 0.2s;">
+                <div class="stat-icon bg-public">
+                    <i data-lucide="globe" size="32"></i>
+                </div>
+                <div class="stat-value" id="publicFiles">0</div>
+                <div class="stat-label">Shared Globally</div>
+            </div>
+
+            <!-- Private Files -->
+            <div class="stat-card clickable" onclick="window.location.href='admin_private_assets.html'"
+                style="animation-delay: 0.3s;">
+                <div class="stat-icon bg-private">
+                    <i data-lucide="lock" size="32"></i>
+                </div>
+                <div class="stat-value" id="privateFiles">0</div>
+                <div class="stat-label">Restricted Access</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'index.html';
+
+        async function fetchFileStats() {
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/total-files-count`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                document.getElementById('totalFiles').textContent = data.total_files.toLocaleString();
+                document.getElementById('publicFiles').textContent = data.public_files.toLocaleString();
+                document.getElementById('privateFiles').textContent = data.private_files.toLocaleString();
+
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('statsContent').style.display = 'grid';
+
+            } catch (err) {
+                console.error("Stats fetch error:", err);
+                document.getElementById('loadingState').innerHTML = `
+                    <i data-lucide="alert-circle" size="48" color="var(--error)"></i>
+                    <p style="color: var(--error); margin-top: 1rem;">Failed to synchronize stats. Check server connection.</p>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
+
+        // Initial Load
+        fetchFileStats();
+    </script>
+</body>
+
+</html>

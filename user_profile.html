@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile | FileStore Pro</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #64748b;
+            --primary-dark: #475569;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --sidebar-width: 260px;
+            --success: #10b981;
+            --error: #fb7185;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #0b1425;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+            padding: 0 0.5rem;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: white;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            color: #fca5a5;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem 3rem;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .header {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            width: fit-content;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(148, 163, 184, 0.1);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8125rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--border) 25%, rgba(51, 65, 85, 0.5) 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 4px;
+            color: transparent !important;
+        }
+
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .data-loaded {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 0.6rem;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            display: none;
+            z-index: 99;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-container {
+                margin-left: 0;
+                width: 100%;
+                padding: 1.5rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-logo"><i data-lucide="folder-lock" color="white" size="20"></i></div>
+            <span class="brand-name">FileStore Pro</span>
+        </div>
+        <nav class="nav-menu">
+            <li class="nav-item"><a href="user_dashboard.html" class="nav-link"><i
+                        data-lucide="layout-dashboard"></i><span>My Files</span></a></li>
+            <li class="nav-item"><a href="public_files.html" class="nav-link"><i data-lucide="globe"></i><span>Public
+                        Files</span></a></li>
+            <li class="nav-item"><a href="user_profile.html" class="nav-link active"><i
+                        data-lucide="user"></i><span>Profile Info</span></a></li>
+        </nav>
+        <a class="nav-link logout-btn" id="logoutTrigger"><i data-lucide="log-out"></i><span>Logout</span></a>
+    </aside>
+
+    <main class="main-container">
+        <header class="header">
+            <button class="menu-toggle" id="menuToggle"><i data-lucide="menu"></i></button>
+            <h1>Account Settings</h1>
+        </header>
+
+        <div class="grid">
+            <!-- Profile Info Card -->
+            <div class="card">
+                <h2 class="card-title"><i data-lucide="user" size="18"></i>Profile Details</h2>
+                <div class="profile-info">
+                    <div class="info-item"><span class="info-label">Full Name</span><span class="info-value skeleton"
+                            id="userName">--</span></div>
+                    <div class="info-item"><span class="info-label">Roll Number</span><span class="info-value skeleton"
+                            id="userRoll">--</span></div>
+                    <div class="info-item"><span class="info-label">Section</span><span class="info-value skeleton"
+                            id="userSection">--</span></div>
+                    <div class="info-item"><span class="info-label">Current Role</span><span class="info-value skeleton"
+                            id="userRole">--</span></div>
+                    <div class="info-item"><span class="info-label">Status</span><span
+                            class="info-value skeleton status-badge" id="userStatus">--</span></div>
+                    <div class="info-item"><span class="info-label">Joined On</span><span class="info-value skeleton"
+                            id="userJoined">--</span></div>
+                    <div class="info-item"><span class="info-label">Max Size Per File (Kb)</span><span
+                            class="info-value skeleton" id="userFileSize">--</span></div>
+                    <div class="info-item"><span class="info-label">Total Allowed Size (Kb)</span><span
+                            class="info-value skeleton" id="userMaxStorage">--</span></div>
+                    <div class="info-item"><span class="info-label">Space Occupied (Kb)</span><span
+                            class="info-value skeleton" id="userSpaceOccupied">--</span></div>
+                </div>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card">
+                <h2 class="card-title"><i data-lucide="lock" size="18"></i>Security</h2>
+                <form id="passwordForm">
+                    <div class="form-group"><label>Current Password</label><input type="password" id="old_password"
+                            required placeholder="••••••••"></div>
+                    <div class="form-group"><label>New Password</label><input type="password" id="new_password" required
+                            placeholder="••••••••"></div>
+                    <div class="form-group"><label>Retype New Password</label><input type="password"
+                            id="retype_password" required placeholder="••••••••"></div>
+                    <button type="submit" class="btn-submit" id="submitBtn">Update Password</button>
+                    <div id="formMsg"
+                        style="margin-top:1rem;display:none;padding:0.75rem;border-radius:8px;font-size:0.8rem;"></div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'index.html';
+
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            const isOpen = sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active', isOpen);
+        }
+
+        menuToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        document.getElementById('logoutTrigger').addEventListener('click', () => { localStorage.clear(); window.location.href = 'index.html'; });
+
+        async function fetchProfile() {
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/user/v1/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await response.json();
+                if (response.ok) {
+                    // Remove skeleton state
+                    document.querySelectorAll('.info-value').forEach(el => el.classList.remove('skeleton'));
+                    document.querySelector('.profile-info').classList.add('data-loaded');
+
+                    document.getElementById('userName').textContent = data.name;
+                    document.getElementById('userRoll').textContent = data.roll || 'N/A';
+                    document.getElementById('userSection').textContent = data.section || 'N/A';
+                    document.getElementById('userRole').textContent = data.role;
+                    document.getElementById('userJoined').textContent = data.created_at;
+                    document.getElementById('userStatus').textContent = data.status;
+
+                    // Support numeric values and convert to KB (Assuming API returns Bytes)
+                    const perFile = data.size_per_file ? (data.size_per_file / 1024).toFixed(0) : 'N/A';
+                    const totalLimit = data.max_size ? (data.max_size / 1024).toFixed(0) : 'Unlimited';
+                    const occupied = data.space_occupied !== undefined ? (data.space_occupied / 1024).toFixed(2) : '0';
+
+                    document.getElementById('userFileSize').textContent = perFile;
+                    document.getElementById('userMaxStorage').textContent = totalLimit;
+                    document.getElementById('userSpaceOccupied').textContent = occupied;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('formMsg');
+            const old_password = document.getElementById('old_password').value;
+            const new_password = document.getElementById('new_password').value;
+            if (new_password !== document.getElementById('retype_password').value) {
+                msg.textContent = 'Passwords do not match'; msg.style.display = 'block'; msg.style.background = 'rgba(251,113,133,0.1)'; msg.style.color = 'var(--error)';
+                return;
+            }
+            try {
+                const res = await fetch(`${CONFIG.BASE_URL}/auth/v1/change-password`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ old_password, new_password })
+                });
+                const data = await res.json();
+                msg.textContent = data.msg || data.error; msg.style.display = 'block';
+                msg.style.background = res.ok ? 'rgba(16,185,129,0.1)' : 'rgba(251,113,133,0.1)';
+                msg.style.color = res.ok ? 'var(--success)' : 'var(--error)';
+            } catch (e) { msg.textContent = 'Error updating password'; }
+        });
+
+        document.addEventListener('DOMContentLoaded', fetchProfile);
+    </script>
+</body>
+
+</html>

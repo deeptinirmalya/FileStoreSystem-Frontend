@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access | File Store</title>
+    <meta name="description" content="Professional file management access portal.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- External Configuration -->
+    <script src="config.js"></script>
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #334155;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --error: #b91c1c;
+            --success: #15803d;
+            --border: #e2e8f0;
+            --input-focus: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Subtle geometric pattern background */
+            background-image:
+                radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 2rem;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 3rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            color: white;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+        }
+
+        input {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 2.75rem 0.75rem 2.75rem;
+            color: var(--text-main);
+            font-size: 0.9375rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem;
+            transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        input:focus {
+            border-color: var(--input-focus);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Status Messages */
+        .status-msg {
+            margin-top: 1.25rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+
+        .status-error {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            color: var(--error);
+        }
+
+        .status-success {
+            background: #f0fdf4;
+            border: 1px solid #dcfce7;
+            color: var(--success);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1rem;
+            }
+
+            .login-card {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <main class="login-card">
+            <div class="header">
+                <div class="brand-icon">
+                    <i data-lucide="lock" size="24"></i>
+                </div>
+                <h1>Sign in to Portal</h1>
+                <p class="subtitle">Secure authentication for file services</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="roll" class="label">Roll Number</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user" class="input-icon" size="18"></i>
+                        <input type="text" id="roll" name="roll" placeholder="e.g. 2024CS001" required
+                            autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="label">Password</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="key-round" class="input-icon" size="18"></i>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required
+                            autocomplete="current-password">
+                        <button type="button" class="password-toggle" id="togglePassword"
+                            aria-label="Toggle password visibility">
+                            <i data-lucide="eye" size="18" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span id="btnText">Sign In</span>
+                    <div class="spinner" id="btnSpinner"></div>
+                </button>
+            </form>
+
+            <div id="statusMsg" class="status-msg"></div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 File Store Pro. Securely encrypted.</p>
+            <p style="margin-top: 1rem;">
+                Don't have an account? <a href="signup.html"
+                    style="color: var(--input-focus); text-decoration: none; font-weight: 600;">Create Account</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const statusMsg = document.getElementById('statusMsg');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        // Toggle Password Visibility
+        togglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+
+            // Update icon
+            if (isPassword) {
+                toggleIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                toggleIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons(); // Re-render icons
+        });
+
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear status
+            statusMsg.style.display = 'none';
+            statusMsg.className = 'status-msg';
+
+            setLoading(true);
+
+            const roll = document.getElementById('roll').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/auth/v1/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ roll, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const { access_token, role, status } = data;
+
+                    // Redirection Logic
+                    // if (status === 'block') {
+                    //     // Don't store token
+                    //     window.location.href = 'blocked_account.html';
+                    //     return;
+                    // }
+
+                    if (status === 'active') {
+                        // Store token for active users
+                        localStorage.setItem('access_token', access_token);
+                        localStorage.setItem('role', role);
+                        localStorage.setItem('status', status);
+
+                        if (role === 'admin') {
+                            window.location.href = 'admin_dashboard.html';
+                        } else if (role === 'user') {
+                            window.location.href = 'user_dashboard.html';
+                        } else {
+                            showStatus('Invalid role assigned.', 'error');
+                        }
+                    } else {
+                        // Any status that isn't active or block (e.g., deactivate, pending)
+                        // Don't store token
+                        window.location.href = 'activate_account.html';
+                    }
+
+                } else {
+                    const errorMsg = data.message || data.msg || data.error || 'Invalid credentials';
+                    showStatus(errorMsg, 'error');
+                }
+            } catch (err) {
+                showStatus('Network connection failed.', 'error');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(isLoading) {
+            loginBtn.disabled = isLoading;
+            btnText.style.display = isLoading ? 'none' : 'block';
+            btnSpinner.style.display = isLoading ? 'block' : 'none';
+        }
+
+        function showStatus(message, type) {
+            statusMsg.textContent = message;
+            statusMsg.style.display = 'block';
+            statusMsg.classList.add(type === 'success' ? 'status-success' : 'status-error');
+        }
+    </script>
+</body>
+
+</html>

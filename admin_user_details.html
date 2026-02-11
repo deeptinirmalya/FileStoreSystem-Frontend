@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Details | AdminHub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0b0f1a;
+            --bg-card: #161c2d;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #2d3748;
+            --sidebar-width: 280px;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles (Matching Admin Dashboard) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #0f172a;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2.5rem 3.5rem;
+            max-width: calc(100% - var(--sidebar-width));
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 3rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn:hover {
+            color: var(--text-main);
+        }
+
+        .user-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-large-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .user-title-info h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-deactive {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-muted);
+        }
+
+        .status-block {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .status-requested {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        /* Grid Layout for Details */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2rem;
+            animation: slideUp 0.5s ease;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        /* Files Table Styles */
+        .files-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .files-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .files-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9375rem;
+        }
+
+        .file-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Loading */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10rem 0;
+            grid-column: span 2;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(99, 102, 241, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Action Buttons in Table */
+        .action-btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .file-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+
+        .file-action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border-color: var(--primary);
+        }
+
+        .btn-view:hover {
+            color: var(--info);
+            border-color: var(--info);
+        }
+
+        .btn-download:hover {
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-delete:hover {
+            color: var(--error);
+            border-color: var(--error);
+        }
+
+        .btn-public:hover {
+            color: var(--warning);
+            border-color: var(--warning);
+        }
+
+        /* Reset Password Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirm-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-desc {
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            font-size: 0.9375rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-confirm {
+            flex: 1;
+            padding: 0.875rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-confirm:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 0.875rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .visibility-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .status-public {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-private {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-private:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .file-name-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo"><i data-lucide="shield-check" color="white" size="24"></i></div>
+            <span class="brand-name">AdminHub</span>
+        </div>
+        <nav class="nav-menu">
+            <li class="nav-item"><a href="admin_dashboard.html" class="nav-link"><i
+                        data-lucide="layout-dashboard"></i><span>Analytics</span></a></li>
+            <li class="nav-item"><a href="admin_add_user.html" class="nav-link"><i data-lucide="user-plus"></i><span>Add
+                        User</span></a></li>
+            <li class="nav-item"><a href="admin_files_stats.html" class="nav-link"><i
+                        data-lucide="files"></i><span>Files</span></a></li>
+            <li class="nav-item"><a href="admin_logs.html" class="nav-link"><i data-lucide="database"></i><span>System
+                        Logs</span></a></li>
+        </nav>
+        <a class="nav-link" id="logoutBtn" style="color: #fca5a5; margin-top: auto; cursor: pointer;"><i
+                data-lucide="log-out"></i><span>Sign Out</span></a>
+    </aside>
+
+    <main class="main-container">
+        <a href="javascript:history.back()" class="back-btn"><i data-lucide="arrow-left" size="16"></i> Go Back</a>
+
+        <div id="loader" class="loader-container">
+            <div class="loader"></div>
+            <p style="color: var(--text-muted);">Syncing secure profile data...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <header class="header-bar">
+                <div class="user-profile-header">
+                    <div id="userInitials" class="user-large-avatar">--</div>
+                    <div class="user-title-info">
+                        <h1 id="userNameHeading">Loading...</h1>
+                        <span id="userStatusBadge" class="status-badge status-active">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background: currentColor;"></div>
+                            <span id="userStatusLabel">Status</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-action btn-primary" id="resetPasswordBtn">
+                        <i data-lucide="key-round" size="18"></i> Reset Password
+                    </button>
+                </div>
+            </header>
+
+            <!-- Unified Action Confirmation Modal -->
+            <div id="actionModal" class="modal-overlay">
+                <div class="confirm-modal">
+                    <div id="actionIcon" class="modal-icon">
+                        <i data-lucide="shield-alert" size="32"></i>
+                    </div>
+                    <h2 id="actionTitle" class="modal-title">Confirm Action</h2>
+                    <p id="actionDesc" class="modal-desc">Are you sure you want to proceed?</p>
+                    <div class="modal-actions">
+                        <button class="btn-cancel" onclick="closeActionModal()">Cancel</button>
+                        <button class="btn-confirm" id="confirmActionBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <!-- Profile Section -->
+                <div class="content-card">
+                    <h2 class="card-title"><i data-lucide="user" size="20" color="var(--primary)"></i> Profile
+                        Information</h2>
+                    <div class="info-item">
+                        <p class="info-label">Full Name</p>
+                        <p id="userName" class="info-value">--</p>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">Roll Number</p>
+                        <p id="userRoll" class="info-value">--</p>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">Section / Group</p>
+                        <p id="userSection" class="info-value">--</p>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">Account Created</p>
+                        <p id="userJoined" class="info-value">--</p>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">Total Storage Allotted</p>
+                        <p id="userMaxSize" class="info-value">--</p>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">Max Size Per File</p>
+                        <p id="userMaxFile" class="info-value">--</p>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">User ID (Database)</p>
+                        <p id="userId" class="info-value">--</p>
+                    </div>
+                </div>
+
+                <!-- Storage/Files Section -->
+                <div class="content-card">
+                    <h2 class="card-title"><i data-lucide="files" size="20" color="var(--primary)"></i> Uploaded Assets
+                    </h2>
+                    <div style="overflow-x: auto;">
+                        <table class="files-table">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Subject</th>
+                                    <th>Exp. No</th>
+                                    <th style="text-align: right; padding-right: 2rem;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="filesTableBody">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noFilesMsg"
+                        style="display: none; text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <i data-lucide="file-x-2" size="48" style="opacity: 0.1; margin-bottom: 1rem;"></i>
+                        <p>This user hasn't uploaded any documents yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'index.html';
+
+        // Extract ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+        let userRollNumber = null;
+
+        async function fetchUserDetails() {
+            if (!userId) {
+                alert("No User ID specified.");
+                window.location.href = 'admin_dashboard.html';
+                return;
+            }
+
+            const loader = document.getElementById('loader');
+            const content = document.getElementById('content');
+
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/user-profile-details/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                renderProfile(data.accounts[0]);
+                renderFiles(data.files);
+
+                loader.style.display = 'none';
+                content.style.display = 'block';
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Detail fetch error:", err);
+                loader.innerHTML = `<p style="color:var(--error)">${err.message || 'Failed to load user profile.'}</p>`;
+            }
+        }
+
+        function formatSize(bytes) {
+            if (bytes === null || bytes === undefined || bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function renderProfile(user) {
+            if (!user) return;
+
+            document.title = `${user.name} | Admin Access`;
+            document.getElementById('userNameHeading').textContent = user.name;
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userRoll').textContent = user.roll;
+            userRollNumber = user.roll;
+            document.getElementById('userSection').textContent = user.section;
+            document.getElementById('userId').textContent = `#${user.id}`;
+            document.getElementById('userInitials').textContent = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
+            // New Storage fields
+            document.getElementById('userMaxSize').textContent = user.max_size > 0 ? formatSize(user.max_size) : 'Unlimited';
+            document.getElementById('userMaxFile').textContent = user.size_per_file > 0 ? formatSize(user.size_per_file) : 'System Default';
+
+            const joinedDate = new Date(user.created_at).toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+            document.getElementById('userJoined').textContent = joinedDate;
+
+            // Status Badge
+            const badge = document.getElementById('userStatusBadge');
+            const label = document.getElementById('userStatusLabel');
+            badge.className = `status-badge status-${user.status}`;
+            label.textContent = user.status;
+        }
+
+        function renderFiles(files) {
+            const tbody = document.getElementById('filesTableBody');
+            const noFiles = document.getElementById('noFilesMsg');
+
+            if (!files || files.length === 0) {
+                tbody.parentElement.parentElement.style.display = 'none';
+                noFiles.style.display = 'block';
+                return;
+            }
+
+            tbody.innerHTML = files.map(file => {
+                const uploadDate = new Date(file.uploaded_at).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric'
+                });
+
+                const isPublic = (String(file.is_public).toLowerCase() === 'yes' || file.is_public === true);
+                const safeFileName = file.file_name.replace(/'/g, "\\'");
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="file-name-cell">
+                                <i data-lucide="file-text" size="20" style="color: ${isPublic ? '#60a5fa' : '#94a3b8'}"></i>
+                                <div class="file-name-container">
+                                    <span style="display: block;">${file.file_name}</span>
+                                    <span class="visibility-label ${isPublic ? 'status-public' : 'status-private'}">
+                                        <i data-lucide="${isPublic ? 'globe' : 'shield-lock'}" size="10"></i>
+                                        ${isPublic ? 'Everyone (Shared)' : 'Restricted / Locked'}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${file.subject || '--'}</td>
+                        <td style="font-weight: 600; color: var(--primary);">${file.exp_number || '--'}</td>
+                        <td style="text-align: right; padding-right: 1.5rem;">
+                            <div class="action-btn-group" style="justify-content: flex-end;">
+                                <button class="file-action-btn btn-view" onclick="viewFile(${file.id})" title="View Content">
+                                    <i data-lucide="eye" size="14"></i>
+                                </button>
+                                <button class="file-action-btn btn-download" onclick="downloadFile(${file.id}, '${safeFileName}')" title="Download">
+                                    <i data-lucide="download" size="14"></i>
+                                </button>
+                                ${isPublic ? `
+                                <button class="file-action-btn btn-private" onclick="openPrivateConfirm(${file.id}, '${safeFileName}')" title="Make Restricted">
+                                    <i data-lucide="lock" size="14"></i>
+                                </button>
+                                ` : `
+                                <button class="file-action-btn btn-public" onclick="openPublicConfirm(${file.id}, '${safeFileName}')" title="Share Globally">
+                                    <i data-lucide="globe" size="14"></i>
+                                </button>
+                                `}
+                                <button class="file-action-btn btn-delete" onclick="openDeleteConfirm(${file.id}, '${safeFileName}')" title="Delete">
+                                    <i data-lucide="trash-2" size="14"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // Action Handlers
+        function viewFile(id) {
+            window.open(`view_file.html?id=${id}`, '_blank');
+        }
+
+        async function downloadFile(id, filename) {
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/user/v1/download/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert("Failed to download file.");
+                }
+            } catch (err) {
+                console.error("Download error:", err);
+                alert("Network error.");
+            }
+        }
+
+        let pendingAction = null;
+        const actionModal = document.getElementById('actionModal');
+        const confirmActionBtn = document.getElementById('confirmActionBtn');
+
+        function openModal(title, desc, icon, btnText, color, callback) {
+            document.getElementById('actionTitle').textContent = title;
+            document.getElementById('actionDesc').innerHTML = desc;
+            document.getElementById('actionIcon').innerHTML = `<i data-lucide="${icon}" size="32"></i>`;
+            document.getElementById('actionIcon').style.color = color;
+            document.getElementById('actionIcon').style.background = `${color}1A`;
+            confirmActionBtn.textContent = btnText;
+            confirmActionBtn.style.background = color;
+            pendingAction = callback;
+            actionModal.style.display = 'flex';
+            lucide.createIcons();
+        }
+
+        function closeActionModal() {
+            actionModal.style.display = 'none';
+            pendingAction = null;
+        }
+
+        function openDeleteConfirm(id, name) {
+            openModal(
+                "Delete File?",
+                `Are you sure you want to permanently delete <b>${name}</b>? This action cannot be undone.`,
+                "trash-2",
+                "Delete Permanently",
+                "#ef4444",
+                async () => {
+                    const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/admin-delete-file/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    return response;
+                }
+            );
+        }
+
+        function openPublicConfirm(id, name) {
+            openModal(
+                "Universal Sharing",
+                `Are you sure you want to broadcast <b>${name}</b>? This will make it accessible to the entire community via the public discovery page.`,
+                "globe",
+                "Share Globally",
+                "#3b82f6",
+                async () => {
+                    const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/admin-public-file/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    return response;
+                }
+            );
+        }
+
+        function openPrivateConfirm(id, name) {
+            openModal(
+                "Secure File",
+                `Are you sure you want to restrict <b>${name}</b>? It will be removed from the public discovery page and returned to locked status.`,
+                "lock",
+                "Restrict Access",
+                "#f43f5e",
+                async () => {
+                    const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/admin-private-file/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    return response;
+                }
+            );
+        }
+
+        function openResetConfirm() {
+            if (!userRollNumber) {
+                alert("User roll number not loaded.");
+                return;
+            }
+            openModal(
+                "Reset Security",
+                `Are you sure you want to reset the password for this user? This will restore credentials to system defaults.`,
+                "shield-alert",
+                "Confirm Reset",
+                "#6366f1",
+                async () => {
+                    const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/admin-reset-user-password/${userRollNumber}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    return response;
+                }
+            );
+        }
+
+        document.getElementById('resetPasswordBtn').addEventListener('click', openResetConfirm);
+
+        confirmActionBtn.addEventListener('click', async () => {
+            if (!pendingAction) return;
+            const originalText = confirmActionBtn.textContent;
+            confirmActionBtn.disabled = true;
+            confirmActionBtn.textContent = "Syncing...";
+
+            try {
+                const response = await pendingAction();
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.msg || "Action successful!");
+                    closeActionModal();
+                    fetchUserDetails(); // Refresh data
+                } else {
+                    alert(data.msg || data.error || "Action failed.");
+                    confirmActionBtn.disabled = false;
+                    confirmActionBtn.textContent = originalText;
+                }
+            } catch (err) {
+                console.error("Action error:", err);
+                alert("Connection failed.");
+                confirmActionBtn.disabled = false;
+                confirmActionBtn.textContent = originalText;
+            }
+        });
+
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
+
+        // Initialize
+        fetchUserDetails();
+    </script>
+</body>
+
+</html>

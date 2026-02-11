@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Documents | File Discovery</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #64748b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .file-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .file-table th {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8125rem;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .file-table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9375rem;
+        }
+
+        .file-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .file-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+        }
+
+        .file-icon {
+            color: var(--primary);
+        }
+
+        .loader {
+            border: 3px solid rgba(148, 163, 184, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 4rem auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .file-table th:nth-child(2),
+            .file-table td:nth-child(2),
+            .file-table th:nth-child(3),
+            .file-table td:nth-child(3),
+            .file-table th:nth-child(5),
+            .file-table td:nth-child(5) {
+                display: none;
+            }
+        }
+
+        .action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+        }
+
+        .view-btn:hover {
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .download-btn:hover {
+            color: #10b981;
+            border-color: #10b981;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Button Loading Spinner */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-top: -8px;
+            margin-left: -8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Public Discovery</h1>
+            <p class="subtitle">Access community shared files and resources</p>
+        </header>
+
+        <div class="content-card">
+            <div id="fileContainer" class="table-responsive">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let allPublicFiles = [];
+
+        async function fetchPublicFiles() {
+            const container = document.getElementById('fileContainer');
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/user/v1/dashboard/public-files`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    allPublicFiles = data.files;
+                    renderFiles(data.files);
+                } else {
+                    container.innerHTML = `<div class="empty-state">Unable to load documents at this time.</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="empty-state">Network error. Please try again.</div>`;
+            }
+        }
+
+        function renderFiles(files) {
+            const container = document.getElementById('fileContainer');
+            if (!files || files.length === 0) {
+                container.innerHTML = `<div class="empty-state">No public documents found.</div>`;
+                return;
+            }
+
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            let html = `
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Subject</th>
+                            <th>Exp. No</th>
+                            <th>Size</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            files.forEach(file => {
+                const date = new Date(file.uploaded_at).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+
+                html += `
+                    <tr>
+                        <td>
+                            <div class="file-name-cell">
+                                <i data-lucide="file-text" class="file-icon" size="20"></i>
+                                <span>${file.file_name}</span>
+                            </div>
+                        </td>
+                        <td>${file.subject || 'General'}</td>
+                        <td style="font-weight: 600; color: var(--primary);">${file.exp_number || '-'}</td>
+                        <td>${formatBytes(file.file_size)}</td>
+                        <td style="color: var(--text-muted)">${date}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="action-btn view-btn" onclick="viewFile(${file.id})" title="View Content">
+                                    <i data-lucide="eye" size="16"></i>
+                                </button>
+                                <button class="action-btn download-btn" id="dl-btn-${file.id}" onclick="downloadFile(${file.id})" title="Download File">
+                                    <i data-lucide="download" size="16"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function viewFile(id) {
+            window.open(`view_file.html?id=${id}`, '_blank');
+        }
+
+        async function downloadFile(id) {
+            const btn = document.getElementById(`dl-btn-${id}`);
+            const originalContent = btn.innerHTML;
+
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/user/v1/download/${id}`);
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const fileRecord = allPublicFiles.find(f => f.id === id);
+                    const fileName = fileRecord ? fileRecord.file_name : 'downloaded_file';
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert("Could not download file.");
+                }
+            } catch (err) {
+                alert("Network error.");
+            } finally {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchPublicFiles);
+    </script>
+</body>
+
+</html>

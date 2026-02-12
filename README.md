@@ -32,8 +32,9 @@ A modern, responsive web interface for managing cloud storage. This frontend pro
 ## ⚙️ Local Development
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v16 or higher)
-- [NPM](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
+- [js]
+- [html[
+- [CSS]
 
 ### Installation
 

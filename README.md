@@ -32,9 +32,9 @@ A modern, responsive web interface for managing cloud storage. This frontend pro
 ## ⚙️ Local Development
 
 ### Prerequisites
-- [js]
-- [html[
-- [CSS]
+- js
+- html
+- CSS
 
 ### Installation
 

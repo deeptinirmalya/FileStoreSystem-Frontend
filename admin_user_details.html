@@ -291,6 +291,15 @@
             background: var(--primary-dark);
         }
 
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
         /* Loading */
         .loader-container {
             display: flex;
@@ -556,9 +565,12 @@
                         </span>
                     </div>
                 </div>
-                <div class="header-actions">
+                <div class="header-actions" style="display: flex; gap: 1rem;">
                     <button class="btn-action btn-primary" id="resetPasswordBtn">
                         <i data-lucide="key-round" size="18"></i> Reset Password
+                    </button>
+                    <button class="btn-action btn-danger" id="deleteUserBtn">
+                        <i data-lucide="user-minus" size="18"></i> Delete User
                     </button>
                 </div>
             </header>
@@ -905,7 +917,25 @@
             );
         }
 
+        function openDeleteUserConfirm() {
+            openModal(
+                "Delete User Account?",
+                `Are you sure you want to <b>permanently delete</b> this user account? This will remove all their data and assets. This action is irreversible.`,
+                "user-minus",
+                "Yes, Delete User",
+                "#ef4444",
+                async () => {
+                    const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/admin-delete-user/${userId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    return response;
+                }
+            );
+        }
+
         document.getElementById('resetPasswordBtn').addEventListener('click', openResetConfirm);
+        document.getElementById('deleteUserBtn').addEventListener('click', openDeleteUserConfirm);
 
         confirmActionBtn.addEventListener('click', async () => {
             if (!pendingAction) return;
@@ -919,7 +949,11 @@
                 if (response.ok) {
                     alert(data.msg || "Action successful!");
                     closeActionModal();
-                    fetchUserDetails(); // Refresh data
+                    if (data.msg === "User Delete Sucessful") {
+                        window.location.href = 'admin_dashboard.html';
+                    } else {
+                        fetchUserDetails(); // Refresh data
+                    }
                 } else {
                     alert(data.msg || data.error || "Action failed.");
                     confirmActionBtn.disabled = false;

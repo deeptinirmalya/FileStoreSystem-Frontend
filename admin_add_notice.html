@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add User | Admin Management</title>
+    <title>Edit Notice | Admin Management</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@400;500&display=swap"
         rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Configuration -->
     <script src="config.js"></script>
     <style>
         :root {
@@ -39,7 +40,7 @@
             display: flex;
         }
 
-        /* Sidebar Styles (Consistent with Dashboard) */
+        /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
             background: #0f172a;
@@ -118,8 +119,21 @@
             border-radius: 24px;
             padding: 2.5rem;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .form-header {
@@ -149,25 +163,29 @@
             font-size: 0.8125rem;
             color: var(--text-muted);
             margin-bottom: 0.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
+            font-weight: 500;
         }
 
-        .input-control {
+        .form-control {
             width: 100%;
-            background: #0b0f1a;
+            background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 1rem;
+            padding: 0.875rem 1rem;
             color: var(--text-main);
             font-size: 0.9375rem;
             transition: all 0.2s;
-            outline: none;
         }
 
-        .input-control:focus {
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-control:focus {
+            outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .btn-submit {
@@ -175,108 +193,78 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 1rem;
             border-radius: 12px;
+            padding: 1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
+            margin-top: 2rem;
         }
 
         .btn-submit:hover {
             background: var(--primary-dark);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .btn-submit:disabled {
-            opacity: 0.5;
+            opacity: 0.7;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* Modal Styles */
-        .modal-overlay {
+        /* Toast Notification */
+        .toast {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
-            display: none;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 0.75rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 1000;
         }
 
-        .modal-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
         }
 
-        .modal-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
-            border-radius: 50%;
+        .toast.success {
+            background: var(--success);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .toast.error {
+            background: var(--error);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Loading */
+        .loader-container {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.5rem;
+            padding: 2rem 0;
         }
 
-        .modal-btns {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.75rem;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-secondary {
-            background: #2d3748;
-            color: white;
-        }
-
-        .btn-confirm {
-            background: var(--primary);
-            color: white;
-        }
-
-        #msg {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            text-align: center;
-            display: none;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(99, 102, 241, 0.1);
+            border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: none;
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
@@ -296,18 +284,15 @@
         <nav class="nav-menu">
             <li class="nav-item"><a href="admin_dashboard.html" class="nav-link"><i
                         data-lucide="layout-dashboard"></i><span>Analytics</span></a></li>
-            <li class="nav-item"><a href="admin_add_user.html" class="nav-link active"><i
-                        data-lucide="user-plus"></i><span>Add User</span></a></li>
+            <li class="nav-item"><a href="admin_add_user.html" class="nav-link"><i data-lucide="user-plus"></i><span>Add
+                        User</span></a></li>
             <li class="nav-item"><a href="admin_files_stats.html" class="nav-link"><i
                         data-lucide="files"></i><span>Files</span></a></li>
             <li class="nav-item"><a href="admin_logs.html" class="nav-link"><i data-lucide="database"></i><span>System
-                        Logs</span></a>
-            </li>
+                        Logs</span></a></li>
             <li class="nav-item"><a href="admin_add_file.html" class="nav-link"><i data-lucide="file-plus"></i><span>Add
-                        File</span></a>
-            </li>
-            <li class="nav-item"><a href="admin_add_notice.html" class="nav-link"><i data-lucide="bell-plus"></i><span>Update
-                        Notice</span></a></li>
+                        File</span></a></li>
+            <li class="nav-item"><a href="admin_add_notice.html" class="nav-link active"><i data-lucide="bell-plus"></i><span>Update Notice</span></a></li>
         </nav>
         <a class="nav-link" id="logoutBtn" style="color: #fca5a5; margin-top: auto; cursor: pointer;"><i
                 data-lucide="log-out"></i><span>Sign Out</span></a>
@@ -316,122 +301,139 @@
     <main class="main-container">
         <div class="form-card">
             <div class="form-header">
-                <i data-lucide="user-plus" size="32"></i>
-                <h2>Create New Account</h2>
-                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">The roll number will be
-                    used as the default password.</p>
+                <i data-lucide="bell" size="32"></i>
+                <h2>Update System Notice</h2>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Edit the global system notice</p>
             </div>
 
-            <form id="addUserForm">
+            <div id="loader" class="loader-container">
+                <div class="loader"></div>
+                <p style="color: var(--text-muted); margin-top: 1rem; font-size: 0.875rem;">Loading current notice...</p>
+            </div>
+
+            <form id="editNoticeForm" style="display: none;">
                 <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="name" class="input-control" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label>Roll Number</label>
-                    <input type="text" id="roll" class="input-control" placeholder="e.g. 2101001" required>
-                </div>
-                <div class="form-group">
-                    <label>Section</label>
-                    <input type="text" id="section" class="input-control" placeholder="e.g. A, B, CS-1" required>
+                    <label for="noticeMessage">Notice Message</label>
+                    <textarea id="noticeMessage" class="form-control" placeholder="Type the notice message here..." required></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit" id="submitBtn">
-                    <div class="spinner" id="btnSpinner"></div>
-                    <span id="btnText">Add User Account</span>
+                    <i data-lucide="save" size="18"></i> Save Changes
                 </button>
             </form>
-
-            <div id="msg"></div>
         </div>
     </main>
 
-    <!-- Confirmation Modal -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal-content">
-            <div class="modal-icon"><i data-lucide="help-circle" size="32"></i></div>
-            <h2>Confirm Action</h2>
-            <p style="color: var(--text-muted); margin-top: 0.5rem;" id="modalDesc">Are you sure you want to create this
-                account?</p>
-            <div class="modal-btns">
-                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                <button class="btn btn-confirm" id="confirmBtn">Confirm & Create</button>
-            </div>
-        </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i id="toastIcon" data-lucide="check-circle"></i>
+        <span id="toastMessage">Success!</span>
     </div>
 
     <script>
         lucide.createIcons();
+        
+        // Token auth check
         const token = localStorage.getItem('access_token');
         if (!token) window.location.href = 'index.html';
-
-        const form = document.getElementById('addUserForm');
-        const modal = document.getElementById('confirmModal');
-        const submitBtn = document.getElementById('submitBtn');
-
-        let formData = null;
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            formData = {
-                name: document.getElementById('name').value,
-                roll: document.getElementById('roll').value,
-                section: document.getElementById('section').value
-            };
-
-            document.getElementById('modalDesc').innerHTML = `Create account for <b>${formData.name}</b> (Roll: ${formData.roll}) in Section ${formData.section}?`;
-            modal.style.display = 'flex';
-        });
-
-        document.getElementById('cancelBtn').addEventListener('click', () => modal.style.display = 'none');
-
-        document.getElementById('confirmBtn').addEventListener('click', async () => {
-            modal.style.display = 'none';
-            setLoading(true);
-
-            try {
-                const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/add-new-account`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showMsg(data.msg || "Account created successfully!", "success");
-                    form.reset();
-                } else {
-                    showMsg(data.error || "Failed to create account", "error");
-                }
-            } catch (err) {
-                showMsg("Network error: Could not reach server", "error");
-            } finally {
-                setLoading(false);
-            }
-        });
-
-        function setLoading(loading) {
-            submitBtn.disabled = loading;
-            document.getElementById('btnSpinner').style.display = loading ? 'block' : 'none';
-            document.getElementById('btnText').textContent = loading ? 'Creating Account...' : 'Add User Account';
-        }
-
-        function showMsg(text, type) {
-            const msg = document.getElementById('msg');
-            msg.textContent = text;
-            msg.style.display = 'block';
-            msg.style.background = type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-            msg.style.color = type === 'success' ? 'var(--success)' : 'var(--error)';
-        }
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.clear();
             window.location.href = 'index.html';
         });
+
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const toastIcon = document.getElementById('toastIcon');
+
+        function showToast(message, isError = false) {
+            toast.className = `toast ${isError ? 'error' : 'success'} show`;
+            toastMessage.textContent = message;
+            toastIcon.setAttribute('data-lucide', isError ? 'alert-circle' : 'check-circle');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Fetch existing notice
+        async function loadNotice() {
+            const loader = document.getElementById('loader');
+            const form = document.getElementById('editNoticeForm');
+            const textarea = document.getElementById('noticeMessage');
+
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/admin-view-notice`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const data = await response.json();
+                
+                // Set text area value to current message if it exists
+                if (data && data.message) {
+                    textarea.value = data.message;
+                } else {
+                    textarea.value = '';
+                }
+
+            } catch (err) {
+                console.error("View notice error:", err);
+                showToast("Failed to fetch existing notice", true);
+            } finally {
+                loader.style.display = 'none';
+                form.style.display = 'block';
+            }
+        }
+
+        // Handle the notice edit submission
+        document.getElementById('editNoticeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Saving...';
+            btn.disabled = true;
+            lucide.createIcons();
+
+            const message = document.getElementById('noticeMessage').value.trim();
+            
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/admin/v1/admin-edit-notice`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast(data.msg || 'Notice saved successfully!');
+                } else {
+                    showToast(data.error || 'Failed to save notice.', true);
+                }
+            } catch (err) {
+                console.error("Edit notice error:", err);
+                showToast('Network error while saving notice.', true);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        });
+
+        // Init
+        loadNotice();
     </script>
 </body>
 

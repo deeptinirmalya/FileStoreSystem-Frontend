@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Notices | File Store Pro</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --primary: #64748b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        #noticeContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .notice-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--info);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notice-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .notice-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .notice-date {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+        }
+
+        .notice-content {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 0.9375rem;
+            white-space: pre-wrap; /* Maintains newlines */
+        }
+
+        .loader {
+            border: 3px solid rgba(148, 163, 184, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 4rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .back-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            align-self: flex-start;
+            margin-bottom: 2rem;
+        }
+
+        .back-nav:hover {
+            color: var(--text-main);
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .notice-card { padding: 1.25rem; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="javascript:history.back()" class="back-nav">
+            <i data-lucide="arrow-left" size="16"></i> Back
+        </a>
+
+        <header>
+            <h1>System Notices</h1>
+            <p class="subtitle">Important updates and announcements</p>
+        </header>
+
+        <div id="noticeContainer">
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        async function fetchNotices() {
+            const container = document.getElementById('noticeContainer');
+            try {
+                // Fetching the endpoint as specified
+                const response = await fetch(`${CONFIG.BASE_URL}/user/v1/view-notice`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    renderNotices(data);
+                } else {
+                    container.innerHTML = `<div class="empty-state">Unable to load notices at this time.</div>`;
+                }
+            } catch (err) {
+                console.error("Notice fetch error:", err);
+                container.innerHTML = `<div class="empty-state">Network error. Please try again later.</div>`;
+            }
+        }
+
+        function renderNotices(data) {
+            const container = document.getElementById('noticeContainer');
+            
+            // Normalize JSON data to an array handles variations
+            let notices = [];
+            if (Array.isArray(data)) {
+                notices = data;
+            } else if (data && typeof data === 'object') {
+                // If it's a wrapper object containing an array e.g. { notices: [...] }
+                if (data.notices && Array.isArray(data.notices)) {
+                    notices = data.notices;
+                } else if (data.data && Array.isArray(data.data)) {
+                    notices = data.data;
+                } else {
+                    notices = [data]; // single object notice
+                }
+            } else if (typeof data === 'string') {
+                notices = [{ message: data }];
+            }
+            
+            if (notices.length === 0 || (notices.length === 1 && Object.keys(notices[0]).length === 0)) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="bell-off" size="48" style="opacity:0.2; margin-bottom:1rem; display:block; margin-left:auto; margin-right:auto;"></i>
+                        <p>No new notices at this time.</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            let html = '';
+            notices.forEach((notice, index) => {
+                // Extract common properties without knowing schema
+                const title = notice.title || notice.header || notice.subject || 'Notice Update';
+                const content = notice.message || notice.content || notice.text || notice.body || notice.notice || (typeof notice === 'string' ? notice : JSON.stringify(notice, null, 2));
+                const dateRaw = notice.date || notice.created_at || notice.timestamp || notice.posted_on;
+                
+                let dateStr = '';
+                if (dateRaw) {
+                    const parsedDate = new Date(dateRaw);
+                    dateStr = isNaN(parsedDate) ? dateRaw : parsedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                }
+
+                // Convert simple objects to string format if we failed to find text
+                let safeContent = content;
+                if (typeof content === 'object') {
+                    safeContent = JSON.stringify(content, null, 2);
+                }
+
+                html += `
+                    <div class="notice-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="notice-header">
+                            <i data-lucide="bell-ring" size="20" style="color: var(--info)"></i>
+                            <h2 class="notice-title">${title}</h2>
+                            ${dateStr ? `<span class="notice-date">${dateStr}</span>` : ''}
+                        </div>
+                        <div class="notice-content">${safeContent}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // Initialize fetching on page load
+        document.addEventListener('DOMContentLoaded', fetchNotices);
+    </script>
+</body>
+
+</html>
